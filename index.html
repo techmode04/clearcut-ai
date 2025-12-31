@@ -1,1044 +1,551 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Techmode | Video Editor Portfolio</title>
+    <title>ClearCut AI | Professional Background Remover</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Custom Styles */
+        :root {
+            --primary: #6366f1;
+            --secondary: #ec4899;
+            --accent: #8b5cf6;
+            --glass-bg: rgba(17, 24, 39, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #050505; /* Darker background */
-            color: #e5e5e5;
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.15) 0%, transparent 25%);
+            color: #fff;
+            overflow-x: hidden;
         }
 
-        /* 3D card effect */
-        .video-card {
-            transform-style: preserve-3d;
-            transition: transform 0.5s, box-shadow 0.5s, border-color 0.5s;
-            border-color: rgba(255, 255, 255, 0.1);
+        .font-heading {
+            font-family: 'Outfit', sans-serif;
         }
 
-        .video-card:hover {
-            transform: perspective(1000px) rotateY(2deg) rotateX(3deg) scale3d(1.05, 1.05, 1.05);
-            /* Updated glowing shadow */
-            box-shadow: 0 0 25px rgba(34, 197, 94, 0.3), 0 0 10px rgba(22, 163, 74, 0.2);
-            border-color: rgba(34, 197, 94, 0.5);
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        /* Gradient text */
-        .gradient-text {
-            /* Refined gradient */
-            background: linear-gradient(45deg, #22c55e, #16a34a);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Gradient button style */
-        .gradient-btn {
-            background-image: linear-gradient(to right, #22c55e 0%, #16a34a 51%, #15803d 100%);
-            background-size: 200% auto;
-            transition: 0.5s;
-        }
-
-        .gradient-btn:hover {
-            background-position: right center;
+        .glass-button {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        /* Glassmorphism effect */
-        .glass-nav {
-            background: rgba(5, 5, 5, 0.7); /* Darker glass */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        .glass-button:hover {
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+            border-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
         }
 
-        /* Hero canvas */
-        #hero-canvas {
+        .gradient-text {
+            background: linear-gradient(to right, #818cf8, #e879f9);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Animations */
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .scanner-line {
             position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.3;
-        }
-
-        /* Section transition */
-        .page-section {
+            height: 2px;
+            background: #ec4899;
+            box-shadow: 0 0 15px #ec4899;
+            z-index: 20;
+            animation: scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
             display: none;
         }
 
-        .page-section.active {
+        .loading .scanner-line {
             display: block;
-            animation: fadeIn 0.8s ease-in-out;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Custom scrollbar */
+        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
-
         ::-webkit-scrollbar-track {
-            background: #050505;
+            background: #0f172a;
         }
-
         ::-webkit-scrollbar-thumb {
-            background: #22c55e; /* Updated scrollbar color */
-            border-radius: 10px;
+            background: #334155;
+            border-radius: 4px;
         }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: #16a34a; /* Updated scrollbar hover color */
+        /* Comparison Slider */
+        .comparison-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+            line-height: 0; /* remove bottom gap */
+            user-select: none;
         }
-
-        /* Loading spinner animation */
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
+        .comparison-image {
+            width: 100%;
+            height: auto;
+            display: block;
         }
-        .animate-spin {
-          animation: spin 1s linear infinite;
+        .comparison-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 50%; /* Initial split */
+            background-size: cover; /* handled by JS */
+            background-position: left;
+            border-right: 2px solid rgba(255,255,255,0.8);
+            overflow: hidden;
+            z-index: 10;
+        }
+        .slider-handle {
+            position: absolute;
+            top: 50%;
+            right: -20px;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            cursor: ew-resize;
+            z-index: 20;
+            color: #0f172a;
         }
     </style>
 </head>
+<body class="min-h-screen flex flex-col">
 
-<body class="overflow-x-hidden">
-
-    <!-- 3D Hero Background -->
-    <div id="hero-canvas-container" class="fixed top-0 left-0 w-full h-full -z-10">
-        <canvas id="hero-canvas"></canvas>
-    </div>
-
-    <!-- Header / Navigation -->
-    <header id="header" class="glass-nav sticky top-0 z-50 transition-all duration-300">
-        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="#home" class="nav-link text-2xl font-black tracking-tighter gradient-text">TECHMODE</a>
-            <div class="hidden md:flex items-center space-x-8">
-                <a href="#home" class="nav-link text-gray-300 hover:text-white transition duration-300">Home</a>
-                <a href="#short-videos" class="nav-link text-gray-300 hover:text-white transition duration-300">Shorts</a>
-                <a href="#long-videos" class="nav-link text-gray-300 hover:text-white transition duration-300">Long Videos</a>
-                <a href="#contact" class="nav-link text-gray-300 hover:text-white transition duration-300">Contact</a>
+    <!-- Header -->
+    <nav class="fixed w-full z-50 transition-all duration-300 border-b border-transparent" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center">
+                    <i data-lucide="layers" class="text-white w-5 h-5"></i>
+                </div>
+                <span class="font-heading font-bold text-xl tracking-wide">ClearCut<span class="text-indigo-400">AI</span></span>
             </div>
-            <button id="mobile-menu-button" class="md:hidden text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-                </svg>
-            </button>
-        </nav>
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
-            <a href="#home" class="nav-link block py-2 text-gray-300 hover:text-white">Home</a>
-            <a href="#short-videos" class="nav-link block py-2 text-gray-300 hover:text-white">Shorts</a>
-            <a href="#long-videos" class="nav-link block py-2 text-gray-300 hover:text-white">Long Videos</a>
-            <a href="#contact" class="nav-link block py-2 text-gray-300 hover:text-white">Contact</a>
+            
+            <div class="flex items-center gap-4">
+                <button onclick="openSettings()" class="p-2 text-gray-400 hover:text-white transition-colors" title="API Settings">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </button>
+                <a href="https://github.com/yourusername/clearcut-ai" target="_blank" class="glass-button px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+                    <i data-lucide="github" class="w-4 h-4"></i>
+                    <span>GitHub</span>
+                </a>
+            </div>
         </div>
-    </header>
+    </nav>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-6 py-8 md:py-16 relative z-10">
+    <main class="flex-grow pt-32 pb-20 px-6 relative">
+        <!-- Decoration Orbs -->
+        <div class="absolute top-20 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute bottom-20 right-1/4 w-96 h-96 bg-pink-600/20 rounded-full blur-[120px] pointer-events-none"></div>
 
-        <!-- Home Section -->
-        <section id="home" class="page-section active">
-            <div class="min-h-[70vh] flex flex-col items-center justify-center text-center">
-                 <!-- INSTRUCTION: Replace the src with your photo file path. -->
-                <img src="https://placehold.co/160x160/1a1a1a/e5e5e5?text=You" alt="Profile Photo" class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover mx-auto mb-8 border-4 border-gray-800 shadow-lg hover:border-green-500 transition-colors">
-
-                <div class="relative inline-block">
-                    <h1 class="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-4 leading-tight">
-                        Editing Reality, <br><span class="gradient-text">Frame by Frame.</span>
-                    </h1>
-                     <button id="generate-tagline-btn" class="absolute top-0 -right-4 md:-right-12 text-2xl text-gray-400 hover:text-green-400 transition-colors flex items-center justify-center" title="✨ Generate New Tagline">✨</button>
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <!-- Hero Text -->
+            <div class="mb-12 space-y-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold tracking-wider uppercase mb-4">
+                    <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+                    AI Powered v2.0
                 </div>
-                <p class="max-w-3xl text-lg md:text-xl text-gray-400 mb-8">
-                    Welcome to Techmode. [YOUR DESCRIPTION HERE]. I'm a professional video editor crafting compelling narratives and visually stunning content that captures attention and inspires action.
+                <h1 class="font-heading text-5xl md:text-7xl font-bold leading-tight">
+                    Remove Backgrounds <br>
+                    <span class="gradient-text">In Seconds.</span>
+                </h1>
+                <p class="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                    Professional grade background removal powered by U²-Net. <br>
+                    100% Quality preservation. Magic masking. Free & Open Source.
                 </p>
-                <div class="flex justify-center">
-                    <a href="#short-videos" class="nav-link gradient-btn text-white font-bold py-3 px-8 rounded-lg transition-transform transform hover:scale-105">
-                        Explore My Work
-                    </a>
+            </div>
+
+            <!-- App Interface -->
+            <div class="max-w-4xl mx-auto">
+                <div class="glass-panel rounded-2xl p-1 md:p-2 relative overflow-hidden">
+                    
+                    <!-- Upload State -->
+                    <div id="upload-zone" class="relative border-2 border-dashed border-gray-700 hover:border-indigo-500 transition-all duration-300 rounded-xl bg-gray-900/50 min-h-[400px] flex flex-col items-center justify-center p-8 group cursor-pointer">
+                        <input type="file" id="file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/png, image/jpeg, image/jpg, image/webp">
+                        
+                        <div class="w-20 h-20 rounded-2xl bg-gray-800/80 group-hover:bg-indigo-500/20 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 ring-1 ring-white/10 group-hover:ring-indigo-500/50">
+                            <i data-lucide="upload-cloud" class="w-10 h-10 text-gray-400 group-hover:text-indigo-400 transition-colors"></i>
+                        </div>
+                        
+                        <h3 class="text-2xl font-bold text-white mb-2">Drop your image here</h3>
+                        <p class="text-gray-400 mb-6">or click to browse files</p>
+                        
+                        <div class="flex gap-4 text-xs text-gray-500 font-mono">
+                            <span class="px-2 py-1 rounded bg-gray-800 border border-gray-700">PNG</span>
+                            <span class="px-2 py-1 rounded bg-gray-800 border border-gray-700">JPG</span>
+                            <span class="px-2 py-1 rounded bg-gray-800 border border-gray-700">WEBP</span>
+                        </div>
+                    </div>
+
+                    <!-- Processing State -->
+                    <div id="processing-state" class="hidden absolute inset-0 bg-gray-900/90 z-20 flex flex-col items-center justify-center rounded-xl">
+                        <div class="relative w-24 h-24 mb-8">
+                            <div class="absolute inset-0 border-4 border-indigo-500/30 rounded-full"></div>
+                            <div class="absolute inset-0 border-4 border-t-indigo-500 rounded-full animate-spin"></div>
+                            <i data-lucide="wand-2" class="absolute inset-0 m-auto w-8 h-8 text-indigo-400 animate-pulse"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Removing Background...</h3>
+                        <p class="text-gray-400 text-sm">Crunching pixels & alpha channels</p>
+                    </div>
+
+                    <!-- Result State -->
+                    <div id="result-zone" class="hidden bg-gray-900/50 rounded-xl overflow-hidden min-h-[400px] flex flex-col">
+                        <!-- Toolbar -->
+                        <div class="h-16 border-b border-gray-800 flex items-center justify-between px-6 bg-gray-900/80">
+                            <button onclick="resetApp()" class="text-gray-400 hover:text-white flex items-center gap-2 text-sm font-medium transition-colors">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                                Upload New
+                            </button>
+                            <div class="flex gap-3">
+                                <span class="text-xs font-mono text-gray-500 self-center hidden md:block" id="image-dimensions">1920x1080 • 4.2MB</span>
+                                <button id="download-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/20">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                    Download HD
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Editor Canvas -->
+                        <div class="flex-grow relative p-4 flex items-center justify-center bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0ib3BhY2l0eSI+PHBhdGggZD0iTTAgMGgxMHYxMEgwem0xMCAxMGgxMHYxMEgxMHoiIGZpbGw9IiMzMzMiIGZpbGwtb3BhY2l0eT0iMC4xIi8+PC9zdmc+')]">
+                            <div class="comparison-container shadow-2xl rounded-lg max-h-[60vh]" id="comparison-container">
+                                <div class="scanner-line" id="scanner"></div>
+                                <!-- Original Image (Background) -->
+                                <img id="original-preview" src="" alt="Original" class="comparison-image">
+                                <!-- Processed Image (Foreground/Overlay) -->
+                                <div id="processed-overlay" class="comparison-overlay">
+                                    <!-- This div will have the processed image as background-image -->
+                                </div>
+                                <!-- Slider Handle -->
+                                <div id="slider-handle" class="slider-handle">
+                                    <i data-lucide="code-2" class="w-4 h-4 text-gray-800 rotate-90"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20 text-left">
+                <div class="p-6 rounded-2xl bg-gray-800/30 border border-gray-700/50">
+                    <div class="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center mb-4 text-pink-400">
+                        <i data-lucide="zap" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Lightning Fast</h3>
+                    <p class="text-gray-400 text-sm">Powered by optimized FastAPI backend. Process images in sub-second times depending on resolution.</p>
+                </div>
+                <div class="p-6 rounded-2xl bg-gray-800/30 border border-gray-700/50">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center mb-4 text-indigo-400">
+                        <i data-lucide="image" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Full Resolution</h3>
+                    <p class="text-gray-400 text-sm">We don't downscale. 4K in, 4K out. Perfect for print and professional design workflows.</p>
+                </div>
+                <div class="p-6 rounded-2xl bg-gray-800/30 border border-gray-700/50">
+                    <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4 text-purple-400">
+                        <i data-lucide="lock" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">Private & Secure</h3>
+                    <p class="text-gray-400 text-sm">Images are processed in RAM and immediately discarded. No data is stored on our servers.</p>
                 </div>
             </div>
 
-            <!-- Featured Work Preview -->
-            <div class="mt-24">
-                <h2 class="text-4xl font-bold tracking-tight text-center mb-4">Selected Work</h2>
-                <p class="text-center text-gray-400 mb-12 max-w-2xl mx-auto">A handpicked selection of projects that showcase a diverse range of editing styles and techniques.</p>
-
-                <!-- Shorts Preview -->
-                <div class="mb-20">
-                    <h3 class="text-3xl font-bold tracking-tight mb-8 text-center gradient-text">Shorts</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        <!-- Short Video 1 -->
-                        <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                            <div class="relative group">
-                                <video controls poster="https://placehold.co/900x1600/1a1a1a/e5e5e5?text=Short+Video+1" class="w-full aspect-[9/16] object-cover">
-                                    <source src="path/to/your/short-video-1.mp4" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                                <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                    <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z"></path></svg>
-                                </div>
-                            </div>
-                            <div class="p-5">
-                                <div class="flex justify-between items-center gap-2">
-                                    <h3 class="text-xl font-semibold tracking-tight">Commercial Teaser</h3>
-                                    <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                                </div>
-                                <p class="text-gray-400 mt-2 text-sm">A 15-second teaser for a new tech product launch.</p>
-                            </div>
-                        </div>
-                        <!-- Short Video 2 -->
-                        <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                           <div class="relative group">
-                                <video controls poster="https://placehold.co/900x1600/1a1a1a/e5e5e5?text=Short+Video+2" class="w-full aspect-[9/16] object-cover">
-                                    <source src="path/to/your/short-video-2.mp4" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                                <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                    <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z"></path></svg>
-                                </div>
-                            </div>
-                            <div class="p-5">
-                                <div class="flex justify-between items-center gap-2">
-                                    <h3 class="text-xl font-semibold tracking-tight">Event Recap</h3>
-                                    <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                                </div>
-                                <p class="text-gray-400 mt-2 text-sm">Highlight reel from a major corporate event.</p>
-                            </div>
-                        </div>
-                        <!-- Short Video 3 -->
-                        <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                            <div class="relative group">
-                                <video controls poster="https://placehold.co/900x1600/1a1a1a/e5e5e5?text=Short+Video+3" class="w-full aspect-[9/16] object-cover">
-                                    <source src="path/to/your/short-video-3.mp4" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                                <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                    <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z"></path></svg>
-                                </div>
-                            </div>
-                            <div class="p-5">
-                                <div class="flex justify-between items-center gap-2">
-                                    <h3 class="text-xl font-semibold tracking-tight">Instagram Reel Ad</h3>
-                                    <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                                </div>
-                                <p class="text-gray-400 mt-2 text-sm">Trendy and viral-style ad for a fashion brand.</p>
-                            </div>
-                        </div>
-                        <!-- Short Video 4 -->
-                        <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                           <div class="relative group">
-                                <video controls poster="https://placehold.co/900x1600/1a1a1a/e5e5e5?text=Short+Video+4" class="w-full aspect-[9/16] object-cover">
-                                    <source src="path/to/your/short-video-4.mp4" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                                <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                    <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z"></path></svg>
-                                </div>
-                            </div>
-                            <div class="p-5">
-                                <div class="flex justify-between items-center gap-2">
-                                    <h3 class="text-xl font-semibold tracking-tight">Product Demo</h3>
-                                    <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                                </div>
-                                <p class="text-gray-400 mt-2 text-sm">A quick 30-second demonstration of a software feature.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Long Form Preview -->
-                <div>
-                    <h3 class="text-3xl font-bold tracking-tight mb-8 text-center gradient-text">Long Form</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        <!-- Long Video 1 -->
-                        <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                             <div class="relative group">
-                                <video controls poster="https://placehold.co/1600x900/1a1a1a/e5e5e5?text=Long+Video+1" class="w-full aspect-video object-cover">
-                                    <source src="path/to/your/long-video-1.mp4" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                                <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                    <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z"></path></svg>
-                                </div>
-                            </div>
-                            <div class="p-5">
-                                <div class="flex justify-between items-center gap-2">
-                                    <h3 class="text-xl font-semibold tracking-tight">Mini-Documentary</h3>
-                                    <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                                </div>
-                                <p class="text-gray-400 mt-2 text-sm">A 10-minute documentary exploring a local artist's journey.</p>
-                            </div>
-                        </div>
-                        <!-- Long Video 2 -->
-                        <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                            <div class="relative group">
-                                <video controls poster="https://placehold.co/1600x900/1a1a1a/e5e5e5?text=Long+Video+2" class="w-full aspect-video object-cover">
-                                    <source src="path/to/your/long-video-2.mp4" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                                <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                    <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z"></path></svg>
-                                </div>
-                            </div>
-                            <div class="p-5">
-                                <div class="flex justify-between items-center gap-2">
-                                    <h3 class="text-xl font-semibold tracking-tight">Corporate Brand Film</h3>
-                                    <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                                </div>
-                                <p class="text-gray-400 mt-2 text-sm">An inspiring brand story film for a leading tech company.</p>
-                            </div>
-                        </div>
-                        <!-- Long Video 3 -->
-                        <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                           <div class="relative group">
-                                <video controls poster="https://placehold.co/1600x900/1a1a1a/e5e5e5?text=Long+Video+3" class="w-full aspect-video object-cover">
-                                    <source src="path/to/your/long-video-3.mp4" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                                <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                    <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z"></path></svg>
-                                </div>
-                            </div>
-                            <div class="p-5">
-                                <div class="flex justify-between items-center gap-2">
-                                    <h3 class="text-xl font-semibold tracking-tight">Wedding Film</h3>
-                                    <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                                </div>
-                                <p class="text-gray-400 mt-2 text-sm">A cinematic highlight reel capturing the emotion of a special day.</p>
-                            </div>
-                        </div>
-                        <!-- Long Video 4 -->
-                        <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                             <div class="relative group">
-                                <video controls poster="https://placehold.co/1600x900/1a1a1a/e5e5e5?text=Long+Video+4" class="w-full aspect-video object-cover">
-                                    <source src="path/to/your/long-video-4.mp4" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                                <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                    <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z"></path></svg>
-                                </div>
-                            </div>
-                            <div class="p-5">
-                                <div class="flex justify-between items-center gap-2">
-                                    <h3 class="text-xl font-semibold tracking-tight">Travel Vlog</h3>
-                                    <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                                </div>
-                                <p class="text-gray-400 mt-2 text-sm">An immersive travel video from an exotic location.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Short Videos Section -->
-        <section id="short-videos" class="page-section">
-            <h2 class="text-4xl font-black text-center mb-2 gradient-text">Short Form Videos</h2>
-            <p class="text-center text-gray-400 mb-12 max-w-2xl mx-auto">Quick, engaging, and impactful edits designed for social media platforms and advertising campaigns.</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                
-                <!-- NEW: Upload Card 9:16 (Shorts) -->
-                <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-dashed border-gray-700 hover:border-green-500 transition-all">
-                    <label for="short-upload" class="relative flex flex-col items-center justify-center w-full aspect-[9/16] p-5 cursor-pointer group">
-                        <!-- Icon -->
-                        <svg class="w-16 h-16 text-gray-600 group-hover:text-green-500 transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
-                        <h3 class="text-xl font-semibold tracking-tight mt-4 text-gray-400 group-hover:text-white">Upload Short</h3>
-                        <p class="text-gray-500 mt-1 text-sm">9:16 Aspect Ratio</p>
-                        <input id="short-upload" type="file" accept="video/*" class="sr-only">
-                    </label>
-                </div>
-
-                <!-- Video Item 1 -->
-                <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                    <div class="relative group">
-                        <video controls poster="https://placehold.co/900x1600/1a1a1a/e5e5e5?text=Short+Video+1" class="w-full aspect-[9/16] object-cover">
-                            <source src="path/to/your/short-video-1.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                           <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z" /></svg>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                         <div class="flex justify-between items-center gap-2">
-                            <h3 class="text-xl font-semibold tracking-tight">Commercial Teaser</h3>
-                            <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                        </div>
-                        <p class="text-gray-400 mt-2 text-sm">A 15-second teaser for a new tech product launch.</p>
-                    </div>
-                </div>
-                <!-- Video Item 2 -->
-                <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                    <div class="relative group">
-                        <video controls poster="https://placehold.co/900x1600/1a1a1a/e5e5e5?text=Short+Video+2" class="w-full aspect-[9/16] object-cover">
-                            <source src="path/to/your/short-video-2.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                           <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z" /></svg>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-center gap-2">
-                            <h3 class="text-xl font-semibold tracking-tight">Event Recap</h3>
-                            <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                        </div>
-                        <p class="text-gray-400 mt-2 text-sm">Highlight reel from a major corporate event.</p>
-                    </div>
-                </div>
-                <!-- Video Item 3 -->
-                <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                    <div class="relative group">
-                        <video controls poster="https://placehold.co/900x1600/1a1a1a/e5e5e5?text=Short+Video+3" class="w-full aspect-[9/16] object-cover">
-                            <source src="path/to/your/short-video-3.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                           <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z" /></svg>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-center gap-2">
-                            <h3 class="text-xl font-semibold tracking-tight">Instagram Reel Ad</h3>
-                            <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                        </div>
-                        <p class="text-gray-400 mt-2 text-sm">Trendy and viral-style ad for a fashion brand.</p>
-                    </div>
-                </div>
-                <!-- Video Item 4 -->
-                <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                    <div class="relative group">
-                        <video controls poster="https://placehold.co/900x1600/1a1a1a/e5e5e5?text=Short+Video+4" class="w-full aspect-[9/16] object-cover">
-                            <source src="path/to/your/short-video-4.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                           <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z" /></svg>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-center gap-2">
-                            <h3 class="text-xl font-semibold tracking-tight">Product Demo</h3>
-                            <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                        </div>
-                        <p class="text-gray-400 mt-2 text-sm">A quick 30-second demonstration of a software feature.</p>
-                    </div>
-                </div>
-                <!-- Video Item 5 -->
-                <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                    <div class="relative group">
-                        <video controls poster="https://placehold.co/900x1600/1a1a1a/e5e5e5?text=Short+Video+5" class="w-full aspect-[9/16] object-cover">
-                            <source src="path/to/your/short-video-5.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                           <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z" /></svg>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-center gap-2">
-                            <h3 class="text-xl font-semibold tracking-tight">Testimonial Clip</h3>
-                            <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                        </div>
-                        <p class="text-gray-400 mt-2 text-sm">Short, impactful customer testimonial for a service.</p>
-                    </div>
-                </div>
-                <!-- Video Item 6 -->
-                <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                    <div class="relative group">
-                        <video controls poster="https://placehold.co/900x1600/1a1a1a/e5e5e5?text=Short+Video+6" class="w-full aspect-[9/16] object-cover">
-                            <source src="path/to/your/short-video-6.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </default>
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                           <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z" /></svg>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-center gap-2">
-                            <h3 class="text-xl font-semibold tracking-tight">TikTok Dance Edit</h3>
-                            <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                        </div>
-                        <p class="text-gray-400 mt-2 text-sm">Fast-paced, synced edit for a viral dance challenge.</p>
-                    </div>
-                </div>
-            </div>
-            <!-- JUMP BUTTON -->
-            <div class="text-center mt-16">
-                <a href="#long-videos" class="nav-link gradient-btn text-white font-bold py-3 px-8 rounded-lg transition-transform transform hover:scale-105 inline-block">
-                    View Long Form Videos
-                </a>
-            </div>
-        </section>
-
-        <!-- Long Videos Section -->
-        <section id="long-videos" class="page-section">
-            <h2 class="text-4xl font-black text-center mb-2 gradient-text">Long Form Videos</h2>
-            <p class="text-center text-gray-400 mb-12 max-w-2xl mx-auto">In-depth projects including documentaries, corporate films, and narrative-driven content where storytelling takes center stage.</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
-                <!-- NEW: Upload Card 16:9 (Long) -->
-                <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-dashed border-gray-700 hover:border-green-500 transition-all">
-                    <label for="long-upload" class="relative flex flex-col items-center justify-center w-full aspect-video p-5 cursor-pointer group">
-                        <!-- Icon -->
-                        <svg class="w-16 h-16 text-gray-600 group-hover:text-green-500 transition-colors" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
-                        <h3 class="text-xl font-semibold tracking-tight mt-4 text-gray-400 group-hover:text-white">Upload Long Video</h3>
-                        <p class="text-gray-500 mt-1 text-sm">16:9 Aspect Ratio</p>
-                        <input id="long-upload" type="file" accept="video/*" class="sr-only">
-                    </label>
-                </div>
-                
-                 <!-- Video Item 1 -->
-                <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                    <div class="relative group">
-                        <video controls poster="https://placehold.co/1600x900/1a1a1a/e5e5e5?text=Long+Video+1" class="w-full aspect-video object-cover">
-                            <source src="path/to/your/long-video-1.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                           <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z" /></svg>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-center gap-2">
-                            <h3 class="text-xl font-semibold tracking-tight">Mini-Documentary</h3>
-                            <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                        </div>
-                        <p class="text-gray-400 mt-2 text-sm">A 10-minute documentary exploring a local artist's journey.</p>
-                    </div>
-                </div>
-                 <!-- Video Item 2 -->
-                <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                    <div class="relative group">
-                        <video controls poster="https://placehold.co/1600x900/1a1a1a/e5e5e5?text=Long+Video+2" class="w-full aspect-video object-cover">
-                            <source src="path/to/your/long-video-2.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                           <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z" /></svg>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-center gap-2">
-                            <h3 class="text-xl font-semibold tracking-tight">Corporate Brand Film</h3>
-                            <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                        </div>
-                        <p class="text-gray-400 mt-2 text-sm">An inspiring brand story film for a leading tech company.</p>
-                    </div>
-                </div>
-                 <!-- Video Item 3 -->
-                <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                    <div class="relative group">
-                        <video controls poster="https://placehold.co/1600x900/1a1a1a/e5e5e5?text=Long+Video+3" class="w-full aspect-video object-cover">
-                            <source src="path/to/your/long-video-3.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                           <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z" /></svg>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-center gap-2">
-                            <h3 class="text-xl font-semibold tracking-tight">Wedding Film</h3>
-                            <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                        </div>
-                        <p class="text-gray-400 mt-2 text-sm">A cinematic highlight reel capturing the emotion of a special day.</p>
-                    </div>
-                </div>
-                 <!-- Video Item 4 -->
-                <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                    <div class="relative group">
-                        <video controls poster="https://placehold.co/1600x900/1a1a1a/e5e5e5?text=Long+Video+4" class="w-full aspect-video object-cover">
-                            <source src="path/to/your/long-video-4.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                           <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z" /></svg>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-center gap-2">
-                            <h3 class="text-xl font-semibold tracking-tight">Travel Vlog</h3>
-                            <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                        </div>
-                        <p class="text-gray-400 mt-2 text-sm">An immersive travel video from an exotic location, focused on storytelling.</p>
-                    </div>
-                </div>
-                <!-- Video Item 5 -->
-                <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                    <div class="relative group">
-                        <video controls poster="https://placehold.co/1600x900/1a1a1a/e5e5e5?text=Long+Video+5" class="w-full aspect-video object-cover">
-                            <source src="path/to/your/long-video-5.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                           <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z" /></svg>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-center gap-2">
-                            <h3 class="text-xl font-semibold tracking-tight">Real Estate Tour</h3>
-                            <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                        </div>
-                        <p class="text-gray-400 mt-2 text-sm">A high-end virtual tour of a luxury property.</p>
-                    </div>
-                </div>
-                <!-- Video Item 6 -->
-                <div class="video-card bg-[#111111] rounded-xl overflow-hidden shadow-2xl border border-gray-800">
-                    <div class="relative group">
-                        <video controls poster="https://placehold.co/1600x900/1a1a1a/e5e5e5?text=Long+Video+6" class="w-full aspect-video object-cover">
-                            <source src="path/to/your/long-video-6.mp4" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                           <svg class="w-16 h-16 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6.27768V17.7223C7 18.8519 8.22353 19.5594 9.2088 18.913L18.4286 13.1907C19.3633 12.576 19.3633 11.424 18.4286 10.8093L9.2088 5.08698C8.22353 4.44059 7 5.14811 7 6.27768Z" /></svg>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-center gap-2">
-                            <h3 class="text-xl font-semibold tracking-tight">Educational Content</h3>
-                            <button class="generate-desc-btn p-1.5 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center" title="✨ Generate Description with AI">✨</button>
-                        </div>
-                        <p class="text-gray-400 mt-2 text-sm">A well-produced tutorial video for an online course.</p>
-                    </div>
-                </div>
-            </div>
-             <!-- JUMP BUTTON -->
-            <div class="text-center mt-16">
-                <a href="#short-videos" class="nav-link gradient-btn text-white font-bold py-3 px-8 rounded-lg transition-transform transform hover:scale-105 inline-block">
-                    View Short Form Videos
-                </a>
-            </div>
-        </section>
-
-        <!-- Contact Section -->
-        <section id="contact" class="page-section">
-            <div class="max-w-3xl mx-auto text-center">
-                <h2 class="text-4xl font-black mb-2 gradient-text">Let's Create Together</h2>
-                <p class="text-gray-400 mb-12">
-                    Have a project in mind or just want to connect? I'm always open to new opportunities and collaborations. Drop me a line!
-                </p>
-                <div class="bg-gray-900/50 border border-gray-800 rounded-lg p-8 inline-block">
-                    <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
-                        <!-- Email -->
-                        <a href="mailto:maindr408@gmail.com" class="group flex flex-col items-center text-center space-y-3">
-                             <div class="p-4 bg-gray-800 rounded-full transition-all duration-300 group-hover:bg-green-600 group-hover:scale-110">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                             </div>
-                             <div>
-                                <h4 class="font-semibold text-lg transition-colors group-hover:text-white">Email Me</h4>
-                                <p class="text-green-400 transition-colors group-hover:text-green-200">maindr408@gmail.com</p>
-                             </div>
-                        </a>
-                        <!-- Instagram -->
-                        <a href="https://instagram.com/sachindhisle" target="_blank" rel="noopener noreferrer" class="group flex flex-col items-center text-center space-y-3">
-                             <div class="p-4 bg-gray-800 rounded-full transition-all duration-300 group-hover:bg-green-600 group-hover:scale-110">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
-                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                                </svg>
-                             </div>
-                             <div>
-                                <h4 class="font-semibold text-lg transition-colors group-hover:text-white">Follow Me</h4>
-                                <p class="text-green-400 transition-colors group-hover:text-green-200">@sachindhisle</p>
-                             </div>
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Gemini Creative Ideas Section -->
-                <div class="mt-16 text-left max-w-2xl mx-auto">
-                    <h3 class="text-2xl font-bold text-center mb-4">Have an Idea? Let AI Help!</h3>
-                    <p class="text-center text-gray-400 mb-6">Describe your project below and get some creative editing approaches suggested by AI.</p>
-                    <div class="bg-gray-900/50 border border-gray-800 rounded-lg p-6">
-                        <label for="project-idea" class="sr-only">Describe Your Project Idea</label>
-                        <textarea id="project-idea" rows="4" class="w-full bg-gray-900 border border-gray-700 rounded-md p-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors text-white" placeholder="e.g., A fast-paced travel vlog about hiking in the mountains..."></textarea>
-                        <button id="get-ideas-btn" class="gradient-btn w-full text-white font-bold py-3 px-8 rounded-lg mt-4 transition-transform transform hover:scale-105 flex items-center justify-center gap-2">
-                            ✨ Get Creative Editing Ideas
-                        </button>
-                        <div id="ideas-result" class="mt-6 text-gray-300 bg-gray-900 p-4 rounded-md border border-gray-700 hidden"></div>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
+        </div>
     </main>
 
-    <!-- Floating Contact Button -->
-    <a href="#contact" class="nav-link fixed bottom-6 right-6 z-50 bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg transition-transform transform hover:scale-110 hover:-rotate-6 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-green-500" aria-label="Get in touch">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-    </a>
-
     <!-- Footer -->
-    <footer class="border-t border-gray-800 mt-16">
-        <div class="container mx-auto px-6 py-6 text-center text-gray-500">
-            <p>&copy; <span id="year"></span> Techmode. All Rights Reserved.</p>
+    <footer class="border-t border-gray-800 bg-gray-900/50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-gray-500 text-sm">© 2024 ClearCut AI. Open Source Project.</p>
+            <div class="flex items-center gap-6">
+                <a href="#" class="text-gray-400 hover:text-white text-sm">Privacy</a>
+                <a href="#" class="text-gray-400 hover:text-white text-sm">Terms</a>
+            </div>
         </div>
     </footer>
 
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md rounded-2xl p-6 transform transition-all scale-100">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold">Settings</h3>
+                <button onclick="closeSettings()" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Backend API URL</label>
+                    <input type="text" id="api-url" placeholder="https://your-backend-url.onrender.com" 
+                           class="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                    <p class="text-xs text-gray-500 mt-2">Enter the URL where you deployed the Python backend.</p>
+                </div>
+                
+                <button onclick="saveSettings()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition-colors">
+                    Save Configuration
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <div class="bg-gray-800 border border-gray-700 text-white px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3">
+            <div id="toast-icon">
+                <i data-lucide="check-circle" class="text-green-400 w-5 h-5"></i>
+            </div>
+            <span id="toast-message">Operation successful</span>
+        </div>
+    </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const navLinks = document.querySelectorAll('.nav-link');
-            const sections = document.querySelectorAll('.page-section');
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
+        // Initialize Icons
+        lucide.createIcons();
 
-            // --- Single Page Navigation ---
-            function showSection(id) {
-                sections.forEach(section => {
-                    if ('#' + section.id === id) {
-                        section.classList.add('active');
-                    } else {
-                        section.classList.remove('active');
-                    }
-                });
+        // Constants
+        const DEFAULT_API_URL = 'http://localhost:8000';
+        let apiUrl = localStorage.getItem('clearcut_api_url') || DEFAULT_API_URL;
+        let originalBlob = null;
+        let processedBlob = null;
+
+        // DOM Elements
+        const uploadZone = document.getElementById('upload-zone');
+        const fileInput = document.getElementById('file-input');
+        const processingState = document.getElementById('processing-state');
+        const resultZone = document.getElementById('result-zone');
+        const originalPreview = document.getElementById('original-preview');
+        const processedOverlay = document.getElementById('processed-overlay');
+        const sliderHandle = document.getElementById('slider-handle');
+        const comparisonContainer = document.getElementById('comparison-container');
+        const downloadBtn = document.getElementById('download-btn');
+        const scanner = document.getElementById('scanner');
+
+        // Settings Logic
+        document.getElementById('api-url').value = apiUrl;
+
+        function openSettings() {
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        function saveSettings() {
+            const url = document.getElementById('api-url').value.trim();
+            if (url) {
+                apiUrl = url.replace(/\/$/, ""); // Remove trailing slash
+                localStorage.setItem('clearcut_api_url', apiUrl);
+                showToast('Settings saved successfully');
+                closeSettings();
+            }
+        }
+
+        // Upload Logic
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('border-indigo-500', 'bg-gray-800/50');
+        });
+
+        uploadZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('border-indigo-500', 'bg-gray-800/50');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('border-indigo-500', 'bg-gray-800/50');
+            const files = e.dataTransfer.files;
+            if (files.length) handleFile(files[0]);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showToast('Please upload an image file', true);
+                return;
             }
 
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    showSection(targetId);
-                    window.scrollTo(0, 0); // Scroll to top on page change
-                    
-                    // Close mobile menu on link click
-                    if(mobileMenu.classList.contains('hidden') === false){
-                        mobileMenu.classList.add('hidden');
-                    }
-                });
-            });
-
-            // Set initial page based on hash or default to #home
-            const initialHash = window.location.hash || '#home';
-            showSection(initialHash);
+            // Display loading state
+            uploadZone.classList.add('hidden');
+            processingState.classList.remove('hidden');
             
-            // --- Mobile Menu Toggle ---
-            mobileMenuButton.addEventListener('click', function() {
-                mobileMenu.classList.toggle('hidden');
-            });
-            
-            // --- Footer Year ---
-            document.getElementById('year').textContent = new Date().getFullYear();
-            
-            // --- 3D Background Animation with Three.js ---
-            let scene, camera, renderer, particles;
-            const canvas = document.getElementById('hero-canvas');
-            const container = document.getElementById('hero-canvas-container');
-
-            function init3D() {
-                scene = new THREE.Scene();
-                camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
-                camera.position.z = 5;
-
-                renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
-                renderer.setSize(container.offsetWidth, container.offsetHeight);
-
-                const particleCount = 5000;
-                const particlesGeometry = new THREE.BufferGeometry();
-                const posArray = new Float32Array(particleCount * 3);
-
-                for (let i = 0; i < particleCount * 3; i++) {
-                    posArray[i] = (Math.random() - 0.5) * 10;
-                }
-
-                particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-
-                const particlesMaterial = new THREE.PointsMaterial({
-                    size: 0.005,
-                    color: 0x22c55e, // Green
-                });
-
-                particles = new THREE.Points(particlesGeometry, particlesMaterial);
-                scene.add(particles);
-
-                animate();
-            }
-
-            let mouseX = 0;
-            let mouseY = 0;
-            document.addEventListener('mousemove', (event) => {
-                mouseX = event.clientX;
-                mouseY = event.clientY;
-            });
-
-            function animate() {
-                requestAnimationFrame(animate);
+            // Preview Original immediately
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                originalPreview.src = e.target.result;
+                // We also set the processed overlay to original initially to avoid blank space
+                processedOverlay.style.backgroundImage = `url(${e.target.result})`; 
                 
-                // Animate particles
-                if (particles) {
-                    particles.rotation.y += 0.0001;
-                    particles.rotation.x += 0.0002;
-                }
+                // Get Image Dimensions
+                const img = new Image();
+                img.onload = function() {
+                    document.getElementById('image-dimensions').textContent = 
+                        `${this.width}x${this.height} • ${(file.size / 1024 / 1024).toFixed(2)}MB`;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            processImage(file);
+        }
+
+        async function processImage(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                // Determine if we need to append /remove-bg or if user provided full path
+                // Standardizing: User provides base URL, we append endpoint
+                const endpoint = `${apiUrl}/remove-bg`;
                 
-                // Make particles react to mouse
-                if(camera) {
-                    camera.position.x += (mouseX / window.innerWidth * 0.1 - camera.position.x) * 0.02;
-                    camera.position.y += (-(mouseY / window.innerHeight * 0.1) - camera.position.y) * 0.02;
-                    camera.lookAt(scene.position);
-                }
-                
-                if (renderer && scene && camera) {
-                    renderer.render(scene, camera);
-                }
-            }
-            
-            function onWindowResize() {
-                if (camera && renderer) {
-                    camera.aspect = container.offsetWidth / container.offsetHeight;
-                    camera.updateProjectionMatrix();
-                    renderer.setSize(container.offsetWidth, container.offsetHeight);
-                }
-            }
-
-            window.addEventListener('resize', onWindowResize, false);
-            
-            // Only init 3D on larger screens to save performance on mobile
-            if (window.innerWidth > 768) {
-                init3D();
-            }
-
-            // --- File Upload Handlers ---
-            function handleFileUpload(inputId, containerSelector) {
-                const input = document.getElementById(inputId);
-                if (!input) return;
-
-                input.addEventListener('change', function(event) {
-                    const file = event.target.files[0];
-                    if (!file || !file.type.startsWith('video/')) {
-                        alert("Please upload a video file.");
-                        return;
-                    }
-
-                    const container = event.target.closest(containerSelector);
-                    if (!container) return;
-
-                    const video = document.createElement('video');
-                    video.src = URL.createObjectURL(file);
-                    video.controls = true;
-                    video.classList.add('w-full', 'h-full', 'object-cover', 'absolute', 'inset-0');
-                    video.setAttribute('playsinline', ''); // For mobile playback
-                    video.setAttribute('autoplay', ''); // Start playing
-                    
-                    // Clear the container (label) and add the video
-                    container.innerHTML = ''; // Remove icon and text
-                    container.classList.remove('flex', 'flex-col', 'items-center', 'justify-center', 'p-5'); // Remove label styling
-                    container.appendChild(video);
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData
                 });
-            }
-
-            handleFileUpload('short-upload', 'label[for="short-upload"]');
-            handleFileUpload('long-upload', 'label[for="long-upload"]');
-
-            // --- Gemini API Integration ---
-            const API_KEY = ""; // API Key ko khaali chhod dein, environment isko handle karega.
-
-            // Gemini API ko call karne ke liye function
-            async function callGemini(prompt) {
-                // Use gemini-2.5-flash-preview-05-20
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
-                
-                // Add retry logic with exponential backoff
-                let response;
-                let retries = 3;
-                let delay = 1000;
-
-                for (let i = 0; i < retries; i++) {
-                    try {
-                        response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                contents: [{ parts: [{ text: prompt }] }],
-                            })
-                        });
-
-                        if (response.ok) {
-                            break; // Success
-                        }
-
-                        if (response.status === 429 || response.status >= 500) {
-                            // Throttling or server error, wait and retry
-                            if (i === retries - 1) {
-                                // Last retry failed
-                                console.error("API Error Response after retries:", await response.text());
-                                return `Error: Received status ${response.status} after retries. Please check the console.`;
-                            }
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                            delay *= 2; // Exponential backoff
-                        } else {
-                            // Other client-side error, don't retry
-                            console.error("API Error Response:", await response.text());
-                            return `Error: Received status ${response.status}. Please check the console.`;
-                        }
-
-                    } catch (error) {
-                        if (i === retries - 1) {
-                            console.error("Error calling Gemini API:", error);
-                            return "An error occurred while contacting the AI. Please check the console.";
-                        }
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        delay *= 2;
-                    }
-                }
-
 
                 if (!response.ok) {
-                    console.error("API Error Response:", await response.text());
-                    return `Error: Received status ${response.status}. Please check the console for details.`;
+                    throw new Error(`Server Error: ${response.statusText}`);
                 }
 
-                const result = await response.json();
-                const candidate = result.candidates?.[0];
+                processedBlob = await response.blob();
+                const processedUrl = URL.createObjectURL(processedBlob);
 
-                if (candidate && candidate.content?.parts?.[0]?.text) {
-                    return candidate.content.parts[0].text;
-                } else {
-                    console.error("Unexpected API response structure:", result);
-                    return "Sorry, I couldn't generate a response. The API returned an unexpected format.";
-                }
+                // Update UI with result
+                processedOverlay.style.backgroundImage = `url(${processedUrl})`;
+                
+                // Setup Download
+                downloadBtn.onclick = () => {
+                    const a = document.createElement('a');
+                    a.href = processedUrl;
+                    a.download = `clearcut-${Date.now()}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                };
+
+                // Transition states
+                processingState.classList.add('hidden');
+                resultZone.classList.remove('hidden');
+                scanner.classList.add('loading'); // Start scanner animation for effect
+                
+                // Reset slider to center
+                setSliderPosition(50);
+
+            } catch (error) {
+                console.error(error);
+                showToast('Failed to connect to backend. Check Settings.', true);
+                resetApp();
+                // Open settings automatically on failure to help user
+                setTimeout(openSettings, 1500);
             }
+        }
 
+        function resetApp() {
+            uploadZone.classList.remove('hidden');
+            processingState.classList.add('hidden');
+            resultZone.classList.add('hidden');
+            fileInput.value = '';
+            originalPreview.src = '';
+            processedOverlay.style.backgroundImage = '';
+        }
 
-            // --- Feature 1: Generate Video Description ---
-            document.querySelectorAll('.generate-desc-btn').forEach(button => {
-                button.addEventListener('click', async (e) => {
-                    const card = e.currentTarget.closest('.video-card');
-                    const titleElement = card.querySelector('h3');
-                    const descriptionElement = card.querySelector('p');
-                    const originalButtonContent = button.innerHTML;
+        // Slider Logic
+        let isDragging = false;
 
-                    if (!titleElement || !descriptionElement) return;
+        function setSliderPosition(percentage) {
+            processedOverlay.style.width = `${percentage}%`;
+            sliderHandle.style.left = `${percentage}%`;
+        }
 
-                    const videoTitle = titleElement.textContent;
-                    const prompt = `You are a creative copywriter. Write a short, compelling, and professional description for a video project titled '${videoTitle}'. The description should be suitable for a video editor's portfolio. Keep it under 20 words. Do not include the title in your response.`;
-
-                    // Loading state dikhayein
-                    button.innerHTML = '<div class="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>';
-                    button.disabled = true;
-                    descriptionElement.textContent = "Generating with AI...";
-
-                    const newDescription = await callGemini(prompt);
-                    
-                    descriptionElement.textContent = newDescription.replace(/["*]/g, ''); // Response ko saaf karein
-
-                    // Button ko vaapas restore karein
-                    button.innerHTML = originalButtonContent;
-                    button.disabled = false;
-                });
-            });
-
-            // --- Feature 2: Get Creative Ideas ---
-            const getIdeasBtn = document.getElementById('get-ideas-btn');
-            const projectIdeaInput = document.getElementById('project-idea');
-            const ideasResultContainer = document.getElementById('ideas-result');
-
-            if (getIdeasBtn) {
-                getIdeasBtn.addEventListener('click', async () => {
-                    const ideaText = projectIdeaInput.value.trim();
-                    if (!ideaText) {
-                        ideasResultContainer.innerHTML = "Please describe your project idea first.";
-                        ideasResultContainer.classList.remove('hidden');
-                        return;
-                    }
-
-                    const prompt = `You are a world-class video editor and creative director. Based on the following project idea, suggest 3 unique and creative editing concepts or styles. Present them as a short, bulleted list using hyphens (-). Make the suggestions concise and actionable. Project Idea: '${ideaText}'`;
-
-                    // Loading state dikhayein
-                    const originalButtonText = getIdeasBtn.textContent;
-                    getIdeasBtn.innerHTML = '<span class="mr-2">Generating...</span> <div class="w-5 h-5 border-2 border-t-transparent border-white rounded-full animate-spin"></div>';
-                    getIdeasBtn.disabled = true;
-                    ideasResultContainer.classList.remove('hidden');
-                    ideasResultContainer.innerHTML = '<div class="flex justify-center items-center p-4"><div class="w-6 h-6 border-2 border-t-transparent border-white rounded-full animate-spin"></div></div>';
-
-                    const creativeIdeas = await callGemini(prompt);
-                    
-                    // Result ko format karke display karein
-                    const formattedIdeas = creativeIdeas
-                        .split('\n')
-                        .map(line => line.trim())
-                        .filter(line => line.startsWith('-') || line.startsWith('*'))
-                        .map(line => `<li>${line.substring(1).trim()}</li>`)
-                        .join('');
-                    
-                    ideasResultContainer.innerHTML = `<ul class="list-disc list-inside space-y-2">${formattedIdeas}</ul>`;
-                    
-                    // Button ko vaapas restore karein
-                    getIdeasBtn.innerHTML = originalButtonText;
-                    getIdeasBtn.disabled = false;
-                });
-            }
-
-            // --- Feature 3: Generate New Tagline ---
-            const generateTaglineBtn = document.getElementById('generate-tagline-btn');
-            const taglineElement = document.querySelector('#home h1');
+        sliderHandle.addEventListener('mousedown', () => isDragging = true);
+        window.addEventListener('mouseup', () => isDragging = false);
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
             
-            if(generateTaglineBtn && taglineElement){
-                generateTaglineBtn.addEventListener('click', async () => {
-                    const prompt = "Generate a powerful, short tagline for a professional video editor's portfolio. The current tagline is 'Editing Reality, Frame by Frame.'. Make it creative and impactful. Provide only one tagline, without any extra text, quotation marks, or labels. Ensure the new tagline has a similar two-part structure, ideally with a line break or a natural pause.";
-                    
-                    const originalButtonContent = generateTaglineBtn.innerHTML;
-                    generateTaglineBtn.innerHTML = '<div class="w-5 h-5 border-2 border-t-transparent border-green-400 rounded-full animate-spin"></div>';
-                    generateTaglineBtn.disabled = true;
-
-                    const newTagline = await callGemini(prompt);
-
-                    // Gradient effect ke liye, doosre part ko span mein wrap karna zaroori hai
-                    let parts = newTagline.split(/<br>|\n| - |: /); // Split by common separators
-                    let formattedTagline;
-                    if (parts.length > 1) {
-                        formattedTagline = `${parts[0].trim()}<br><span class="gradient-text">${parts.slice(1).join(' ').trim()}</span>`;
-                    } else {
-                        // Agar line break na ho to fallback
-                        let words = newTagline.trim().split(' ');
-                        let half = Math.ceil(words.length / 2);
-                        let part1 = words.slice(0, half).join(' ');
-                        let part2 = words.slice(half).join(' ');
-                        formattedTagline = `${part1}<br><span class="gradient-text">${part2}</span>`;
-                    }
-
-                    taglineElement.innerHTML = formattedTagline;
-                    
-                    generateTaglineBtn.innerHTML = originalButtonContent;
-                    generateTaglineBtn.disabled = false;
-                });
-            }
-
-            // --- UPDATE: Also fix aspect ratios on homepage preview ---
-            document.querySelectorAll('#home .mb-20 .video-card .aspect-video').forEach(vid => {
-                vid.classList.remove('aspect-video');
-                vid.classList.add('aspect-[9/16]');
-            });
+            const rect = comparisonContainer.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let percentage = (x / rect.width) * 100;
+            
+            // Clamp
+            percentage = Math.max(0, Math.min(100, percentage));
+            setSliderPosition(percentage);
         });
+
+        // Touch support for slider
+        sliderHandle.addEventListener('touchstart', () => isDragging = true);
+        window.addEventListener('touchend', () => isDragging = false);
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const rect = comparisonContainer.getBoundingClientRect();
+            let x = e.touches[0].clientX - rect.left;
+            let percentage = (x / rect.width) * 100;
+            percentage = Math.max(0, Math.min(100, percentage));
+            setSliderPosition(percentage);
+        });
+
+        // Toast Notification
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const msg = document.getElementById('toast-message');
+            const iconContainer = document.getElementById('toast-icon');
+            
+            msg.textContent = message;
+
+            // Re-inject the icon HTML
+            if (isError) {
+                iconContainer.innerHTML = '<i data-lucide="alert-circle" class="text-red-400 w-5 h-5"></i>';
+            } else {
+                iconContainer.innerHTML = '<i data-lucide="check-circle" class="text-green-400 w-5 h-5"></i>';
+            }
+            
+            // Re-render icons
+            lucide.createIcons();
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Initial setup for slider
+        setSliderPosition(50);
     </script>
 </body>
 </html>
