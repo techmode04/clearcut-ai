@@ -18,3 +18,8 @@ async def remove_bg(file: UploadFile = File(...)):
     output = remove(image_bytes)
     return Response(content=output, media_type="image/png")
 
+@app.get("/")
+def home():
+    return {"status": "ClearCut AI backend is running"}
+
+
