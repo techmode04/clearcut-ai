@@ -16,6 +16,30 @@
             --glass-bg: rgba(17, 24, 39, 0.7);
             --glass-border: rgba(255, 255, 255, 0.1);
         }
+<script>
+const API_URL = "https://clearcut-ai-ofem.onrender.com/remove-bg";
+
+async function removeBackground() {
+  const fileInput = document.getElementById("imageInput");
+  if (!fileInput.files.length) {
+    alert("Image select kar bhai 😅");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+
+  const response = await fetch(API_URL, {
+    method: "POST",
+    body: formData
+  });
+
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+
+  document.getElementById("result").src = url;
+}
+</script>
 
         body {
             font-family: 'Inter', sans-serif;
@@ -549,3 +573,4 @@
     </script>
 </body>
 </html>
+
