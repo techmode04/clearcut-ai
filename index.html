@@ -8,29 +8,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script>
-const API_URL = "https://clearcut-ai-ofem.onrender.com/remove-bg";
+const API_BASE = "https://clearcut-ai-ofem.onrender.com";
 
 async function removeBackground() {
-  const fileInput = document.getElementById("imageInput");
-  if (!fileInput.files.length) {
+  const input = document.getElementById("imageInput");
+  if (!input.files.length) {
     alert("Image select kar bhai 😅");
     return;
   }
 
   const formData = new FormData();
-  formData.append("file", fileInput.files[0]);
+  // ⚠️ IMPORTANT: key name MUST be "file"
+  formData.append("file", input.files[0]);
 
-  const response = await fetch(API_URL, {
-    method: "POST",
-    body: formData
-  });
+  try {
+    const response = await fetch(API_BASE + "/remove-bg", {
+      method: "POST",
+      body: formData
+    });
 
-  const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
+    if (!response.ok) {
+      throw new Error("Server error");
+    }
 
-  document.getElementById("result").src = url;
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+
+    document.getElementById("result").src = url;
+  } catch (err) {
+    alert("❌ Failed to connect backend");
+    console.error(err);
+  }
 }
 </script>
+
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
@@ -578,6 +589,7 @@ async function removeBackground() {
     </script>
 </body>
 </html>
+
 
 
 
